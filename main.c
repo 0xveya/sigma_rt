@@ -1,3 +1,29 @@
 #include <sigma/rt.h>
 
-int main(void) { return sigma_rt(); }
+#include <stdio.h>
+#include <string.h>
+
+int sigma_main(sigma_rt_t *rt) {
+  usize *lengths = allocator_array(rt->allocator, usize, rt->args.len);
+
+  if (lengths == NULL)
+    return 1;
+
+  usize sum = 0;
+  for (usize i = 0; i < rt->args.len; i++) {
+    lengths[i] = strlen(rt->args.items[i]);
+    sum += lengths[i];
+    printf("args[%zu] = %s\n", i, rt->args.items[i]);
+  }
+
+  printf("argument length sum: %zu\n", sum);
+  allocator_free_array(rt->allocator, lengths, rt->args.len);
+  return 0;
+}
+
+int main(int argc, char **argv) {
+  sigma_rt_t rt;
+
+  sigma_rt_init(&rt, argc, argv);
+  return sigma_rt(&rt);
+}

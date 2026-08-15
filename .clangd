@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: [-std=c23, -Wall, -Wextra, -Iinclude]
+  Add: [-std=c23, -fblocks, -Wall, -Wextra, -Iinclude]

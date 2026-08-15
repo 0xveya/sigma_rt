@@ -20,6 +20,13 @@ run = "zig build test"
 description = "build and run sigma_rt"
 run = "zig build run"
 
+[tasks."vendor:update"]
+description = "refresh the pinned sigma_malloc package from master"
+run = '''
+commit="$(git ls-remote https://github.com/0xveya/sigma-malloc.git refs/heads/master | cut -f1)"
+zig fetch --save "git+https://github.com/0xveya/sigma-malloc.git#$commit"
+'''
+
 [tasks.compiledb]
 description = "generate compile_commands.json"
 run = "make compiledb"

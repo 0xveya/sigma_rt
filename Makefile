@@ -2,9 +2,10 @@
 
 MAKEFLAGS += -j
 
-C_SOURCES := main.c src/rt.c
+C_SOURCES := main.c src/args.c src/rt.c
+SIGMA_MALLOC_INCLUDE := $(lastword $(wildcard zig-pkg/sigma_malloc-*/include))
 COMPILEDB_TARGETS := $(C_SOURCES:%=compiledb-%)
-COMPILEDB_FLAGS := -std=c23 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wdouble-promotion -Wformat=2 -Wundef -I include
+COMPILEDB_FLAGS := -std=c23 -fblocks -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wdouble-promotion -Wformat=2 -Wundef -I include -I $(SIGMA_MALLOC_INCLUDE)
 
 .PHONY: $(COMPILEDB_TARGETS)
 

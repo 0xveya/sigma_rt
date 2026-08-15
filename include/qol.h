@@ -23,3 +23,9 @@ typedef double f64;
 
 typedef uintptr_t uptr;
 typedef intptr_t iptr;
+
+#define SIGMA_SLICE(T, name)                                                   \
+  typedef struct name {                                                        \
+    usize len;                                                                 \
+    T *items;                                                                  \
+  } name

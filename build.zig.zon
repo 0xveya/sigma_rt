@@ -2,7 +2,12 @@
     .name = .sigma_rt,
     .version = "0.1.0",
     .fingerprint = 0x839b9b88b4e23e13,
-    .dependencies = .{},
+    .dependencies = .{
+        .sigma_malloc = .{
+            .url = "git+https://github.com/0xveya/sigma-malloc.git#6b8a19358c5e6c0ee269b8d7ac4dacf6f4897ce7",
+            .hash = "sigma_malloc-0.1.0-wvYRFWZ-AQCKUgksUWm4LW7GyzOjd9H0TKAwLrDPFXVR",
+        },
+    },
     .paths = .{
         "build.zig",
         "build.zig.zon",
