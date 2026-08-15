@@ -1,0 +1,37 @@
+[tools]
+zig = "0.16.0"
+clang-format = "latest"
+"conda:cppcheck" = "latest"
+"conda:bear" = "latest"
+
+[tasks.build]
+description = "compile sigma_rt"
+run = "zig build -Doptimize=ReleaseFast"
+
+[tasks.dev]
+description = "compile sigma_rt in debug mode"
+run = "zig build -Doptimize=Debug"
+
+[tasks.test]
+description = "run sigma_rt tests"
+run = "zig build test"
+
+[tasks.run]
+description = "build and run sigma_rt"
+run = "zig build run"
+
+[tasks.compiledb]
+description = "generate compile_commands.json"
+run = "make compiledb"
+
+[tasks.check]
+description = "run static analysis"
+run = "cppcheck --enable=all --suppress=missingIncludeSystem main.c src/*.c"
+
+[tasks.format]
+description = "format C sources and headers"
+run = "clang-format -i main.c src/*.c include/*.h include/sigma/*.h"
+
+[tasks.clean]
+description = "remove build artifacts"
+run = "rm -rf zig-out .zig-cache compile_commands.json .bear-fingerprints app app-dev"

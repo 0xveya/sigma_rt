@@ -1,0 +1,13 @@
+.{
+    .name = .sigma_rt,
+    .version = "0.1.0",
+    .fingerprint = 0x839b9b88b4e23e13,
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "include",
+        "main.c",
+    },
+}
