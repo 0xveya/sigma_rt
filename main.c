@@ -4,7 +4,7 @@
 #include <string.h>
 
 int sigma_main(sigma_rt_t *rt) {
-  usize *lengths = allocator_array(rt->allocator, usize, rt->args.len);
+  usize *lengths = allocator_array(rt->arena, usize, rt->args.len);
 
   if (lengths == NULL)
     return 1;
@@ -17,7 +17,6 @@ int sigma_main(sigma_rt_t *rt) {
   }
 
   printf("argument length sum: %zu\n", sum);
-  allocator_free_array(rt->allocator, lengths, rt->args.len);
   return 0;
 }
 
