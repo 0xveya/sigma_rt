@@ -33,28 +33,31 @@ pub fn build(b: *std.Build) void {
     exe.root_module.link_libc = true;
     exe.root_module.addIncludePath(b.path("include"));
     exe.root_module.addIncludePath(sigma_malloc.path("include"));
+
+    var src_files = std.ArrayList([]const u8).empty;
+    defer src_files.deinit(b.allocator);
+    findCFiles(b.graph.io, b.allocator, ".", ".", &src_files, false) catch
+        @panic("failed to find C files");
+    findCFiles(b.graph.io, b.allocator, "src", "src", &src_files, true) catch
+        @panic("failed to find C files in src");
     exe.root_module.addCSourceFiles(.{
-        .files = &.{ "main.c", "src/args.c", "src/rt.c" },
+        .files = src_files.items,
         .flags = &c_flags,
     });
+
+    var sigma_malloc_src_files = std.ArrayList([]const u8).empty;
+    defer sigma_malloc_src_files.deinit(b.allocator);
+    findCFiles(
+        b.graph.io,
+        b.allocator,
+        sigma_malloc.path("src").getPath(b),
+        "src",
+        &sigma_malloc_src_files,
+        true,
+    ) catch @panic("failed to find sigma_malloc C files");
     exe.root_module.addCSourceFiles(.{
         .root = sigma_malloc.path(""),
-        .files = &.{
-            "src/alloc.c",
-            "src/arena.c",
-            "src/arena_allocator.c",
-            "src/buddy.c",
-            "src/debug.c",
-            "src/debug_free.c",
-            "src/free.c",
-            "src/large.c",
-            "src/libc_wrappers.c",
-            "src/memory_source_malloc.c",
-            "src/memory_source_mmap.c",
-            "src/sigma_malloc.c",
-            "src/slab.c",
-            "src/utils/bzero.c",
-        },
+        .files = sigma_malloc_src_files.items,
         .flags = &c_flags,
     });
     if (horny_mode) exe.root_module.addCMacro("HORNY_MODE", "1");
@@ -69,4 +72,34 @@ pub fn build(b: *std.Build) void {
     b.step("run", "Run the sigma_rt example").dependOn(&run.step);
 
     _ = b.step("test", "Run sigma_rt tests when added");
+}
+
+fn findCFiles(
+    io: std.Io,
+    allocator: std.mem.Allocator,
+    scan_dir_path: []const u8,
+    file_dir_path: []const u8,
+    files: *std.ArrayList([]const u8),
+    recursive: bool,
+) !void {
+    var dir = std.Io.Dir.cwd().openDir(io, scan_dir_path, .{ .iterate = true }) catch |err| {
+        if (err == error.FileNotFound) return;
+        return err;
+    };
+    defer dir.close(io);
+
+    var iter = dir.iterate();
+    while (try iter.next(io)) |entry| {
+        if (entry.kind == .directory and recursive) {
+            if (std.mem.startsWith(u8, entry.name, ".")) continue;
+            if (std.mem.eql(u8, entry.name, "zig-out")) continue;
+
+            const scan_sub_path = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ scan_dir_path, entry.name });
+            const file_sub_path = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ file_dir_path, entry.name });
+            try findCFiles(io, allocator, scan_sub_path, file_sub_path, files, true);
+        } else if (std.mem.endsWith(u8, entry.name, ".c")) {
+            const path = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ file_dir_path, entry.name });
+            try files.append(allocator, path);
+        }
+    }
 }

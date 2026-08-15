@@ -1,5 +1,6 @@
 #include <arena_allocator.h>
 #include <sigma/rt.h>
+#include <sigma/env.h>
 #include <sigma_malloc.h>
 
 #include <stdio.h>
@@ -19,7 +20,7 @@ static _Noreturn void rt_panic(const char *message) {
   abort();
 }
 
-void sigma_rt_init(sigma_rt_t *rt, int argc, char **argv) {
+void sigma_rt_init(sigma_rt_t *rt, int argc, char **argv, char **envp) {
   if (rt == NULL)
     rt_panic("runtime context is null");
 
@@ -39,6 +40,9 @@ void sigma_rt_init(sigma_rt_t *rt, int argc, char **argv) {
       rt->allocator.vtable == NULL || rt->arena.ctx == NULL ||
       rt->arena.vtable == NULL)
     rt_panic("sigma_malloc failed to initialize");
+
+  if (!sigma_env_init(&rt->env, rt->arena, envp))
+    rt_panic("failed to initialize environment");
 }
 
 int sigma_rt(sigma_rt_t *rt) {
