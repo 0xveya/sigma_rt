@@ -1,6 +1,6 @@
 #include <arena_allocator.h>
-#include <sigma/rt.h>
 #include <sigma/env.h>
+#include <sigma/rt.h>
 #include <sigma_malloc.h>
 
 #include <stdio.h>

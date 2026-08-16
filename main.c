@@ -1,28 +1,21 @@
 #include <sigma/rt.h>
 
 #include <stdio.h>
-#include <string.h>
 
 int sigma_main(sigma_rt_t *rt) {
-  usize *lengths = allocator_array(rt->arena, usize, rt->args.len);
-
-  if (lengths == NULL)
-    return 1;
-
-  usize sum = 0;
-  for (usize i = 0; i < rt->args.len; i++) {
-    lengths[i] = strlen(rt->args.items[i]);
-    sum += lengths[i];
+  for (usize i = 0; i < rt->args.len; i++)
     printf("args[%zu] = %s\n", i, rt->args.items[i]);
-  }
-  for (usize i = 0; i < rt->env.len; i++) {
-    map_entry_t *entry = &rt->env.entries[i];
+
+  for (usize i = 0; i < rt->env.cap; i++) {
+    const map_entry_t *entry = &rt->env.entries[i];
+
+    if (!entry->occupied)
+      continue;
 
     printf("%.*s = %.*s\n", (int)entry->key.len, entry->key.items,
            (int)entry->value.len, entry->value.items);
   }
 
-  printf("argument length sum: %zu\n", sum);
   return 0;
 }
 

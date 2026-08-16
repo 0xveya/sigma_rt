@@ -71,7 +71,72 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| run.addArgs(args);
     b.step("run", "Run the sigma_rt example").dependOn(&run.step);
 
-    _ = b.step("test", "Run sigma_rt tests when added");
+    const map_tests = b.addExecutable(.{
+        .name = "map-tests",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    map_tests.use_llvm = true;
+    map_tests.root_module.link_libc = true;
+    map_tests.root_module.addIncludePath(b.path("include"));
+    map_tests.root_module.addIncludePath(sigma_malloc.path("include"));
+    map_tests.root_module.addCSourceFiles(.{
+        .files = &.{ "tests/map.c", "src/hash_map.c", "src/libc.c" },
+        .flags = &c_flags,
+    });
+    map_tests.root_module.addCSourceFiles(.{
+        .root = sigma_malloc.path(""),
+        .files = sigma_malloc_src_files.items,
+        .flags = &c_flags,
+    });
+    map_tests.root_module.addCMacro("SIGMA_MALLOC_BACKEND", "1");
+
+    const env_tests = b.addExecutable(.{
+        .name = "env-tests",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    env_tests.use_llvm = true;
+    env_tests.root_module.link_libc = true;
+    env_tests.root_module.addIncludePath(b.path("include"));
+    env_tests.root_module.addIncludePath(sigma_malloc.path("include"));
+    env_tests.root_module.addCSourceFiles(.{
+        .files = &.{
+            "tests/env.c",
+            "src/args.c",
+            "src/env.c",
+            "src/hash_map.c",
+            "src/libc.c",
+            "src/rt.c",
+        },
+        .flags = &c_flags,
+    });
+    env_tests.root_module.addCSourceFiles(.{
+        .root = sigma_malloc.path(""),
+        .files = sigma_malloc_src_files.items,
+        .flags = &c_flags,
+    });
+    env_tests.root_module.addCMacro("SIGMA_MALLOC_BACKEND", "1");
+
+    const run_map_tests = b.addRunArtifact(map_tests);
+    const run_env_tests = b.addSystemCommand(&.{
+        "env",
+        "-i",
+        "HOME=/tmp",
+        "USER=veya",
+        "EMPTY=",
+        "THING=a=b=c",
+    });
+    run_env_tests.addArtifactArg(env_tests);
+    run_env_tests.expectStdOutEqual("HOME = /tmp\n");
+
+    const test_step = b.step("test", "Run map and environment tests");
+    test_step.dependOn(&run_map_tests.step);
+    test_step.dependOn(&run_env_tests.step);
 }
 
 fn findCFiles(
