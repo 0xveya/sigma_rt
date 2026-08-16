@@ -3,7 +3,6 @@
 #include <sigma/rt.h>
 #include <sigma_malloc.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #define RT_ARENA_BLOCK_SIZE (16 * 1024)
@@ -16,7 +15,21 @@ typedef struct rt_allocators {
 static rt_allocators_t g_rt_allocators;
 
 static _Noreturn void rt_panic(const char *message) {
-  fprintf(stderr, "sigma_rt: %s\n", message);
+  char buf[1024];
+
+  const char prefix[] = "sigma_rt: ";
+  usize pos = 0;
+
+  for (usize i = 0; i < sizeof(prefix) - 1; i++)
+    buf[pos++] = prefix[i];
+
+  while (*message && pos < sizeof(buf) - 1)
+    buf[pos++] = *message++;
+
+  buf[pos++] = '\n';
+
+  sigma_write(2, buf, pos);
+
   abort();
 }
 
