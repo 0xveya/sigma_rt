@@ -30,7 +30,10 @@ pub fn build(b: *std.Build) void {
         }),
     });
     exe.use_llvm = true;
-    exe.root_module.link_libc = true;
+    exe.entry = .{ .symbol_name = "_start" };
+    exe.root_module.addObjectFile(.{ .cwd_relative = "/usr/lib/libc.so.6" });
+    exe.root_module.addAssemblyFile(b.path("src/start/x86_64_linux.S"));
+    exe.root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include" });
     exe.root_module.addIncludePath(b.path("include"));
     exe.root_module.addIncludePath(sigma_malloc.path("include"));
 

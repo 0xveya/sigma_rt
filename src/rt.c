@@ -58,8 +58,32 @@ void sigma_rt_init(sigma_rt_t *rt, int argc, char **argv, char **envp) {
     rt_panic("failed to initialize environment");
 }
 
+void sigma_rt_deinit(sigma_rt_t *rt) {
+  (void)rt;
+
+#ifdef SIGMA_RT_DEBUG
+  /* later:
+   * sigma_malloc_validate();
+   * sigma_malloc_report_leaks();
+   * other stuff but malloc does stuff alr but this could be extra sigma stuff
+   */
+#endif
+
+  allocator_arena_deinit(&g_rt_allocators.arena);
+}
+
 int sigma_rt(sigma_rt_t *rt) {
   int status = sigma_main(rt);
-  allocator_arena_deinit(&g_rt_allocators.arena);
+
+  sigma_rt_deinit(rt);
+
   return status;
+}
+
+int sigma_entry(int argc, char **argv, char **envp) {
+  sigma_rt_t rt;
+
+  sigma_rt_init(&rt, argc, argv, envp);
+
+  return sigma_rt(&rt);
 }

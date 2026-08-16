@@ -18,10 +18,3 @@ int sigma_main(sigma_rt_t *rt) {
 
   return 0;
 }
-
-int main(int argc, char **argv, char **envp) {
-  sigma_rt_t rt;
-
-  sigma_rt_init(&rt, argc, argv, envp);
-  return sigma_rt(&rt);
-}
