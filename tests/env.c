@@ -1,5 +1,5 @@
-#include <sigma/rt.h>
 #include <sigma/libc.h>
+#include <sigma/rt.h>
 
 #include <stdio.h>
 
