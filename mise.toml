@@ -14,7 +14,7 @@ run = "zig build -Doptimize=Debug"
 
 [tasks.test]
 description = "run sigma_rt tests"
-run = "zig build test"
+run = "zig build test && zig build run"
 
 [tasks.run]
 description = "build and run sigma_rt"
