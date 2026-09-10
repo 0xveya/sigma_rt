@@ -1,5 +1,5 @@
 set_project("sigma_rt")
-set_version("0.2.0")
+set_version("0.2.1")
 set_languages("c23")
 set_toolchains("clang")
 set_toolset("ld", "clang")
@@ -20,10 +20,8 @@ package("sigma_malloc")
     set_homepage("https://github.com/0xveya/sigma-malloc")
     set_description("Sigma's composable C23 allocator")
     add_urls("https://github.com/0xveya/sigma-malloc.git")
-    add_configs("no_tls", {description = "Use a process-global arena registry", default = false, type = "boolean"})
     on_install(function (package)
-        import("package.tools.xmake").install(package,
-            {no_tls = package:config("no_tls")})
+        import("package.tools.xmake").install(package)
     end)
 package_end()
 
@@ -37,7 +35,7 @@ package("sigma_libft")
 package_end()
 
 add_requires("sigma_sys v0.2.2", {system = false})
-add_requires("sigma_malloc v0.2.1", {system = false, configs = {no_tls = true}})
+add_requires("sigma_malloc v0.2.3", {system = false})
 add_requires("sigma_libft v0.2.2", {system = false})
 
 local warnings = {"all", "extra", "pedantic"}
