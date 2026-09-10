@@ -1,28 +1,29 @@
 [tools]
-zig = "0.16.0"
+"conda:clang" = "latest"
+"github:xmake-io/xmake" = "latest"
 clang-format = "latest"
 "conda:cppcheck" = "latest"
 "conda:bear" = "latest"
 
 [tasks.build]
 description = "compile sigma_rt"
-run = "zig build -Doptimize=ReleaseFast"
+run = "xmake f -m release -y && xmake -y"
 
 [tasks.dev]
 description = "compile sigma_rt in debug mode"
-run = "zig build -Doptimize=Debug"
+run = "xmake f -m debug -y && xmake -y"
 
 [tasks.test]
 description = "run sigma_rt tests"
-run = "zig build test && zig build run"
+run = "xmake test -vD"
 
 [tasks.run]
 description = "build and run sigma_rt"
-run = "zig build run"
+run = "xmake run sigma-rt-app"
 
 [tasks.compiledb]
 description = "generate compile_commands.json"
-run = "make compiledb"
+run = "xmake project -k compile_commands ."
 
 [tasks.check]
 description = "run static analysis"
@@ -34,4 +35,4 @@ run = "clang-format -i main.c src/*.c include/*.h include/sigma/*.h"
 
 [tasks.clean]
 description = "remove build artifacts"
-run = "rm -rf zig-out .zig-cache compile_commands.json .bear-fingerprints app app-dev"
+run = "xmake clean -a && rm -rf build compile_commands.json"

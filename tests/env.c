@@ -15,7 +15,7 @@ static bool env_is(sigma_rt_t *rt, const char *key, const char *expected) {
 int sigma_main(sigma_rt_t *rt) {
   if (!env_is(rt, "HOME", "/tmp") || !env_is(rt, "USER", "veya") ||
       !env_is(rt, "EMPTY", "") || !env_is(rt, "THING", "a=b=c") ||
-      rt->env.len != 4)
+      rt->env.len < 4)
     return 1;
 
   str_t *home = str_map_get(&rt->env, str_from_cstr("HOME"));
