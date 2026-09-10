@@ -2,4 +2,4 @@
 
 #include <sigma/hash_map.h>
 
-bool sigma_env_init(str_map_t *env, allocator_t alloc, char **envp);
+bool sigma_env_init(sigma_str_map *env, allocator_t alloc, char **envp);

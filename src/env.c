@@ -48,13 +48,13 @@ deps: str.map
 externals:
 kind: function
 */
-bool sigma_env_init(str_map_t *env, allocator_t alloc, char **envp) {
+bool sigma_env_init(sigma_str_map *env, allocator_t alloc, char **envp) {
   if (env == NULL || envp == NULL)
     return false;
 
   usize env_count = get_env_len(envp);
 
-  if (!str_map_init(env, alloc, env_count))
+  if (!sigma_str_map_init(env, alloc, env_count))
     return false;
 
   for (usize i = 0; i < env_count; i++) {
@@ -64,7 +64,7 @@ bool sigma_env_init(str_map_t *env, allocator_t alloc, char **envp) {
     if (!parse_env_entry(envp[i], &key, &value))
       continue;
 
-    if (!str_map_put(env, key, value))
+    if (!sigma_str_map_put(env, key, value))
       return false;
   }
 

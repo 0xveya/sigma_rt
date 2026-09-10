@@ -1,20 +1,9 @@
 #include <sigma/rt.h>
-
-#include <stdio.h>
+#include <sigma/sys.h>
 
 int sigma_main(sigma_rt_t *rt) {
-  for (usize i = 0; i < rt->args.len; i++)
-    printf("args[%zu] = %s\n", i, rt->args.items[i]);
-
-  for (usize i = 0; i < rt->env.cap; i++) {
-    const map_entry_t *entry = &rt->env.entries[i];
-
-    if (!entry->occupied)
-      continue;
-
-    printf("%.*s = %.*s\n", (int)entry->key.len, entry->key.items,
-           (int)entry->value.len, entry->value.items);
-  }
-
-  return 0;
+  static const char message[] = "Hello, Sigma!\n";
+  (void)rt;
+  sigma_write_result_t result = s_write(1, message, sizeof(message) - 1);
+  return result.ok ? 0 : 1;
 }

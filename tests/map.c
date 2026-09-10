@@ -1,6 +1,5 @@
 #include <arena_allocator.h>
 #include <sigma/hash_map.h>
-#include <sigma/libc.h>
 #include <sigma_malloc.h>
 
 #include <stdio.h>
@@ -30,61 +29,60 @@ static bool test_allocator_init(test_allocator_t *test_alloc) {
 
 static bool str_is(str_t *value, const char *expected) {
   str_t expected_str = str_from_cstr(expected);
-  return value != NULL && value->len == expected_str.len &&
-         sigma_rt_libc_memcmp(value->items, expected_str.items,
-                              expected_str.len) == 0;
+  return value != NULL && str_eq(*value, expected_str);
 }
 
 static bool test_basic_insert_get_and_replace(allocator_t alloc) {
-  str_map_t map;
-  CHECK(str_map_init(&map, alloc, 4));
-  CHECK(str_map_put(&map, str_from_cstr("A"), str_from_cstr("one")));
-  CHECK(str_map_put(&map, str_from_cstr("B"), str_from_cstr("two")));
-  CHECK(str_is(str_map_get(&map, str_from_cstr("A")), "one"));
-  CHECK(str_is(str_map_get(&map, str_from_cstr("B")), "two"));
-  CHECK(str_map_get(&map, str_from_cstr("MISSING")) == NULL);
+  sigma_str_map map;
+  CHECK(sigma_str_map_init(&map, alloc, 4));
+  CHECK(sigma_str_map_put(&map, str_from_cstr("A"), str_from_cstr("one")));
+  CHECK(sigma_str_map_put(&map, str_from_cstr("B"), str_from_cstr("two")));
+  CHECK(str_is(sigma_str_map_get(&map, str_from_cstr("A")), "one"));
+  CHECK(str_is(sigma_str_map_get(&map, str_from_cstr("B")), "two"));
+  CHECK(sigma_str_map_get(&map, str_from_cstr("MISSING")) == NULL);
 
   usize old_len = map.len;
   usize old_cap = map.cap;
-  CHECK(str_map_put(&map, str_from_cstr("A"), str_from_cstr("changed")));
-  CHECK(str_is(str_map_get(&map, str_from_cstr("A")), "changed"));
+  CHECK(sigma_str_map_put(&map, str_from_cstr("A"), str_from_cstr("changed")));
+  CHECK(str_is(sigma_str_map_get(&map, str_from_cstr("A")), "changed"));
   CHECK(map.len == old_len);
   CHECK(map.cap == old_cap);
   return true;
 }
 
 static bool test_collisions(allocator_t alloc) {
-  str_map_t map;
-  CHECK(str_map_init(&map, alloc, 4));
+  sigma_str_map map;
+  CHECK(sigma_str_map_init(&map, alloc, 4));
 
   const char *left = "A";
   const char *right = "E";
-  CHECK(str_hash(str_from_cstr(left)) % map.cap ==
-        str_hash(str_from_cstr(right)) % map.cap);
-  CHECK(str_map_put(&map, str_from_cstr(left), str_from_cstr("one")));
-  CHECK(str_map_put(&map, str_from_cstr(right), str_from_cstr("five")));
-  CHECK(str_is(str_map_get(&map, str_from_cstr(left)), "one"));
-  CHECK(str_is(str_map_get(&map, str_from_cstr(right)), "five"));
+  CHECK(sigma_str_hash(str_from_cstr(left)) % map.cap ==
+        sigma_str_hash(str_from_cstr(right)) % map.cap);
+  CHECK(sigma_str_map_put(&map, str_from_cstr(left), str_from_cstr("one")));
+  CHECK(sigma_str_map_put(&map, str_from_cstr(right), str_from_cstr("five")));
+  CHECK(str_is(sigma_str_map_get(&map, str_from_cstr(left)), "one"));
+  CHECK(str_is(sigma_str_map_get(&map, str_from_cstr(right)), "five"));
   return true;
 }
 
 static bool test_growth_and_rehash(allocator_t alloc) {
   enum { KEY_COUNT = 100, KEY_SIZE = 16 };
-  str_map_t map;
+  sigma_str_map map;
   char keys[KEY_COUNT][KEY_SIZE];
   char values[KEY_COUNT][KEY_SIZE];
 
-  CHECK(str_map_init(&map, alloc, 1));
+  CHECK(sigma_str_map_init(&map, alloc, 1));
   for (usize i = 0; i < KEY_COUNT; i++) {
     CHECK(snprintf(keys[i], KEY_SIZE, "key-%zu", i) > 0);
     CHECK(snprintf(values[i], KEY_SIZE, "value-%zu", i) > 0);
-    CHECK(str_map_put(&map, str_from_cstr(keys[i]), str_from_cstr(values[i])));
+    CHECK(sigma_str_map_put(&map, str_from_cstr(keys[i]),
+                            str_from_cstr(values[i])));
   }
 
   CHECK(map.len == KEY_COUNT);
   CHECK(map.cap >= KEY_COUNT);
   for (usize i = 0; i < KEY_COUNT; i++)
-    CHECK(str_is(str_map_get(&map, str_from_cstr(keys[i])), values[i]));
+    CHECK(str_is(sigma_str_map_get(&map, str_from_cstr(keys[i])), values[i]));
   return true;
 }
 

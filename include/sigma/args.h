@@ -1,6 +1,6 @@
 #pragma once
 
-#include <qol.h>
+#include <sigma/slice.h>
 
 SIGMA_SLICE(char *, sigma_args_t);
 

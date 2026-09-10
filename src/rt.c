@@ -1,9 +1,8 @@
 #include <arena_allocator.h>
 #include <sigma/env.h>
 #include <sigma/rt.h>
+#include <sigma/sys.h>
 #include <sigma_malloc.h>
-
-#include <stdlib.h>
 
 #define RT_ARENA_BLOCK_SIZE (16 * 1024)
 
@@ -28,9 +27,8 @@ static _Noreturn void rt_panic(const char *message) {
 
   buf[pos++] = '\n';
 
-  sigma_write(2, buf, pos);
-
-  abort();
+  (void)s_write(2, buf, pos);
+  s_exit(127);
 }
 
 void sigma_rt_init(sigma_rt_t *rt, int argc, char **argv, char **envp) {

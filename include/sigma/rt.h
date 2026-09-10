@@ -8,7 +8,7 @@ typedef struct sigma_rt {
   sigma_args_t args;
   allocator_t allocator;
   allocator_t arena;
-  str_map_t env;
+  sigma_str_map env;
 } sigma_rt_t;
 
 int sigma_main(sigma_rt_t *rt);

@@ -1,15 +1,12 @@
-#include <sigma/libc.h>
 #include <sigma/rt.h>
 
 #include <stdio.h>
 
 static bool env_is(sigma_rt_t *rt, const char *key, const char *expected) {
-  str_t *value = str_map_get(&rt->env, str_from_cstr(key));
+  str_t *value = sigma_str_map_get(&rt->env, str_from_cstr(key));
   str_t expected_str = str_from_cstr(expected);
 
-  return value != NULL && value->len == expected_str.len &&
-         sigma_rt_libc_memcmp(value->items, expected_str.items,
-                              expected_str.len) == 0;
+  return value != NULL && str_eq(*value, expected_str);
 }
 
 int sigma_main(sigma_rt_t *rt) {
@@ -18,7 +15,7 @@ int sigma_main(sigma_rt_t *rt) {
       rt->env.len < 4)
     return 1;
 
-  str_t *home = str_map_get(&rt->env, str_from_cstr("HOME"));
+  str_t *home = sigma_str_map_get(&rt->env, str_from_cstr("HOME"));
   printf("HOME = %.*s\n", (int)home->len, home->items);
   return 0;
 }
