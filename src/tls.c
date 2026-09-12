@@ -13,8 +13,6 @@ enum {
   SIGMA_AT_PHDR = 3,
   SIGMA_AT_PHNUM = 5,
   SIGMA_PT_TLS = 7,
-  SIGMA_ARCH_SET_FS = 0x1002,
-  SIGMA_SYS_ARCH_PRCTL = 158,
 };
 
 typedef struct sigma_aux {
@@ -35,16 +33,6 @@ typedef struct sigma_elf64_phdr {
 
 static uintptr_t align_up(uintptr_t value, uintptr_t alignment) {
   return (value + alignment - 1) & ~(alignment - 1);
-}
-
-static long set_thread_pointer(void *pointer) {
-  long result;
-  __asm__ volatile("syscall"
-                   : "=a"(result)
-                   : "a"(SIGMA_SYS_ARCH_PRCTL), "D"(SIGMA_ARCH_SET_FS),
-                     "S"(pointer)
-                   : "rcx", "r11", "memory");
-  return result;
 }
 
 bool sigma_tls_init(char **envp) {
@@ -100,5 +88,7 @@ bool sigma_tls_init(char **envp) {
     tls_block[i] = 0;
 
   *(void **)thread_pointer = (void *)thread_pointer;
-  return set_thread_pointer((void *)thread_pointer) == 0;
+  sigma_status_result_t result =
+      s_arch_prctl(SIGMA_ARCH_SET_FS, thread_pointer);
+  return result.ok;
 }

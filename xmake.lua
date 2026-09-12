@@ -1,5 +1,5 @@
 set_project("sigma_rt")
-set_version("0.2.1")
+set_version("0.2.2")
 set_languages("c23")
 set_toolchains("clang")
 set_toolset("ld", "clang")
@@ -34,9 +34,9 @@ package("sigma_libft")
     end)
 package_end()
 
-add_requires("sigma_sys v0.2.2", {system = false})
-add_requires("sigma_malloc v0.2.3", {system = false})
-add_requires("sigma_libft v0.2.2", {system = false})
+add_requires("sigma_sys v0.4.0", {system = false})
+add_requires("sigma_malloc v0.2.4", {system = false})
+add_requires("sigma_libft v0.4.0", {system = false})
 
 local warnings = {"all", "extra", "pedantic"}
 

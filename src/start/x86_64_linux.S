@@ -4,6 +4,7 @@
 
 .extern sigma_entry
 .extern sigma_tls_init
+.extern s_exit
 _start:
 	xor %ebp, %ebp
 	mov (%rsp), %r12d
@@ -19,13 +20,11 @@ _start:
 	mov %r14, %rdx
 	call sigma_entry
 	mov %eax, %edi
-	mov $60, %eax
-	syscall
+	call s_exit
 
 .Ltls_failed:
 	mov $127, %edi
-	mov $60, %eax
-	syscall
+	call s_exit
 	ud2
 
 # ELF metadata:
